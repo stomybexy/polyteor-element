@@ -14,7 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <!--
     
 An element to subscribe to meteor publication. 
-When publication is made with jonatan:smart-pub package, data property hold published data.
+When publication is made with jonatan:smart-pub package, data property holds published data.
 
 Example:
 
@@ -28,7 +28,7 @@ Example:
 
 <dom-module id="polyteor-subscription">
     <template>
-        <polyteor-query query="{{query}}" data="{{data}}" log="{{log}}" autoupdate="{{autoupdate}}"></polyteor-query>
+        <polyteor-query query="{{_query}}" data="{{data}}" log="{{log}}" autoupdate="{{autoupdate}}"></polyteor-query>
     </template>
     <script>
 (function () {
@@ -65,7 +65,7 @@ Example:
                 readOnly: true,
                 value: false
             },
-            query: {
+            _query: {
                 type: Object,
                 notify: true,
                 computed: '_computeQuery(subReady, name, args)'

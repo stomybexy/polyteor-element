@@ -28,7 +28,7 @@ Example:
 
 <dom-module id="polyteor-collection">
     <template>
-        <polyteor-query query="{{query}}" data="{{data}}" autoupdate="{{autoupdate}}" log="{{log}}"></polyteor-query>
+        <polyteor-query query="{{_query}}" data="{{data}}" autoupdate="{{autoupdate}}" log="{{log}}"></polyteor-query>
     </template>
     <script>
         (function () {
@@ -37,45 +37,66 @@ Example:
     Polymer({
         is: 'polyteor-collection',
         properties: {
+            /**
+             * Queried data.
+             */
             data: {
                 type: Array,
                 notify: true
 
             },
+            /**
+             * Meteor collection name
+             */
             collection: {
                 type: String,
                 reflectToAttribute: true,
                 notify: true,
                 value: null
             },
+            /**
+             * Mongo selector.
+             */
             selector: {
                 type: Object,
                 notify: true,
                 value: null
             },
+            /**
+             * Meteor mongo sort specifier.
+             */
             sort: {
                 type: Object,
                 notify: true,
                 value: null
             },
+            /**
+             * Meteor mongo limit specifier.
+             */
             limit: {
                 type: Number,
                 notify: true,
                 reflectToAttribute: true,
                 value: null
             },
+            /**
+             * Meteor mongo fields specifier.
+             */
             fields: {
                 type: Object,
                 notify: true,
                 value: null
             },
+            /**
+             * Meteor mongo skip specifier.
+             */
             skip: {
                 type: Number,
                 notify: true,
                 value: null,
                 reflectToAttribute: true
             },
-            query: {
+            _query: {
                 type: Object,
                 notify: true,
                 computed: '_computeQuery(collection, selector, sort, fields, limit, skip)'
@@ -88,6 +109,9 @@ Example:
                 value: false,
                 reflectToAttribute: true
             },
+            /**
+             * If true, retrived objects non array properties are autoupdated in the database..
+             */
             autoupdate: {
                 type: Boolean,
                 value: false,
