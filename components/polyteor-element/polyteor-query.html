@@ -1,0 +1,350 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+    
+An element to query meteor collections. It supports queries of multiple related collections 
+with a top level collection.
+
+Example:
+
+      <template is="dom-bind">
+        <polyteor-query query="[[query]]" data="{{todos}}" autoupdate></polyteor-query>
+      </template>
+      
+@demo /
+-->
+
+<dom-module id="polyteor-query">
+    <script>
+        (function () {
+    'use strict';
+
+    Polymer({
+        is: 'polyteor-query',
+        properties: {
+            /**
+             * An ordered array of data items produced by the current query.
+             */
+            data: {
+                type: Array,
+                value: function () {
+                    return [];
+                },
+                notify: true,
+                readOnly: true
+            },
+            /**
+             * The first element of data. Useful when query returns a single object.
+             */
+            dataAsObject:{
+                type: Object,
+                value: null,
+                readOnly: true,
+                notify: true,
+                computed: '_getSingleObject(query, data)'
+            },
+            /**
+             * The query object. 
+             */
+            query: {
+                type: Object,
+                notify: true,
+                observer: '_onQueryChanged'
+            },
+            /**
+             * If true, verbose debugging information will be printed to the console.
+             */
+            log: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+             /**
+             * If true, properties of top level collection are autoupdated in the database. 
+             */
+            autoupdate: {
+                type: Boolean,
+                value: false,
+                relfectToAttribute: true
+            }
+        },
+        observers: [
+            '_dataChanged(data.*)',
+        ],
+        created: function () {
+            this._receivingRemoteChanges = false;
+            this._receivingLocalChanges = false;
+            this._unsuppportedPath = [];
+            this._handles = [];
+           
+
+        },
+        ready: function () {
+
+        },
+        attached: function () {
+            this._log('polyteor-query was attached');
+        },
+
+        detached: function () {
+            this._log('polyteor-query was detached');
+            this._stopHandles();
+        },
+        _getSingleObject: function(query, data){
+           if(query.single){
+               return data[0];
+           }else{
+               return null;
+           }
+        },
+        _onQueryChanged: function () {
+            this._log('Query changed', this.query);
+            this._stopHandles();
+            this._runQuery();
+        },
+        _stopHandles: function () {
+            _.each(this._handles, function (handle) {
+                handle.stop();
+            });
+        },
+        _runQuery: function () {
+            
+            var self = this;
+            if(!_.isFunction(self.query.find)){
+                return;
+            }
+            
+            
+            var opt = self.query.find();
+            
+            self._unsupportedPath = []
+
+            self._log('Unsupported path', self._unsupportedPath);
+            
+            self._log('Query options', opt);
+            var cursor = Mongo.Collection.get(opt.collName)
+                .find(opt.selector || {}, {
+                    sort: opt.sort || undefined,
+                    fields: opt.fields || undefined,
+                    transform: function (doc) {
+                        if (_.isFunction(opt.transform)) {
+                            doc = opt.transform(doc);
+                        }
+                        _.each(opt.children, (child) => {
+                            self._attachChild.call(self, child, doc)
+                        })
+                        return doc;
+                    }
+                });
+                self._setData(cursor.fetch());
+
+
+            var handle = cursor.observe({
+                addedAt: function (doc, atIndex, before) {
+                    if (self.data.length === cursor.count()) {
+                        return;
+                    }
+                    
+                    self._receivingRemoteChanges = true;
+                    self.splice('data', atIndex, 0, doc);
+                    self._receivingRemoteChanges = false;
+
+                },
+                changedAt: function (newDoc, oldDoc, atIndex) {
+
+                    self._receivingRemoteChanges = true;
+                    self.splice('data', atIndex, 1, newDoc);
+
+                    self._receivingRemoteChanges = false;
+                },
+                removedAt: function (oldDoc, atIndex) {
+                    self._receivingRemoteChanges = true;
+                    self.splice('data', atIndex, 1);
+                    self._receivingRemoteChanges = false;
+                },
+                movedTo: function (doc, fromIndex, toIndex, before) {
+                    self._receivingRemoteChanges = true;
+                    self.splice('data', fromIndex, 1);
+                    self.splice('data', toIndex, 0, doc);
+
+                    self._receivingRemoteChanges = false;
+                }
+            })
+            this._handles.push(handle);
+            
+        },
+        _attachChild: function (query, obj) {
+            var self = this;
+            
+            
+             if(!_.isFunction(query.find)){
+                return;
+            }
+            
+            var args = [].slice.call(arguments);
+            this._log('Child call in attach Child with',query, args);
+            args.splice(0, 1);
+            var opt = query.find.apply(this, args)
+            self._unsupportedPath =_.union(self._unsupportedPath, [opt.name]);
+            self._log('Unsupported Path', self._unsupportedPath);
+            var cursor = Mongo.Collection.get(opt.collName)
+                .find(opt.selector || {}, {
+                    sort: opt.sort,
+                    fields: opt.fields,
+                    transform: function (doc) {
+                        if (_.isFunction(opt.transform)) {
+                            doc = opt.transform(doc);
+                        }
+                        _.each(opt.children, (child) => {
+                            args.splice(0, 0, child, doc);
+                            self._attachChild.aplly(self, args);
+                        })
+                        return doc;
+                    }
+                })
+            obj[opt.name] = opt.single ? cursor.fetch()[0] : cursor.fetch();
+            
+            var handle;
+            if (opt.single) {
+                handle = cursor.observe({
+                    added: function (doc) {
+                        if (obj[opt.name]) {
+                            return;
+                        }
+                        obj[opt.name] = doc;
+                    },
+                    changed: function (doc) {
+                        obj[opt.name] = doc;
+
+                    },
+                    removed: function (doc) {
+                        obj[opt.name] = undefined;
+                    }
+                })
+            } else {
+                handle = cursor.observe({
+                    addedAt: function (doc, atIndex, before) {
+
+                        if (obj[opt.name].length === cursor.count()) {
+                            return;
+                        }
+
+                        obj[opt.name].splice(atIndex, 0, doc);
+
+
+                    },
+                    changedAt: function (newDoc, oldDoc, atIndex) {
+
+
+                        self._log('Changed from children...', newDoc, atIndex)
+                        obj[opt.name].splice(atIndex, 1, newDoc);
+
+                    },
+                    removedAt: function (oldDoc, atIndex) {
+
+                        obj[opt.name].splice(atIndex, 1);
+
+                    },
+                    movedTo: function (doc, fromIndex, toIndex, before) {
+
+                        obj[opt.name].splice(fromIndex, 1);
+                        obj[opt.name].splice(toIndex, 0, doc);
+
+                    }
+
+                })
+            }
+            this._handles.push(handle);
+            
+
+
+        },
+        _dataChanged: function (change) {
+            this._log('data changed', change);
+            
+            if (!this.autoupdate) {
+                this._log('Autoupdate disabled!')
+                return;
+            }
+            if (this._receivingRemoteChanges || this._receivingLocalChanges) {
+                this._log('receiving changes local, remote',this._receivingLocalChanges, this._receivingRemoteChanges )
+                return;
+            }
+            this._localDataChanged(change);
+        },
+        _localDataChanged(change) {
+            var pathParts = change.path.split('.');
+            // We don't care about self-changes, and we don't respond directly to
+            // length changes:
+            if (pathParts.length < 2 || pathParts[1] === 'length') {
+                return;
+            }
+            // Handle splices via the adoption process. `indexSplices` is known to
+            // sometimes be null, so guard against that.
+            if (pathParts[1] === 'splices') {
+                // this._adoptSplices(change.value.indexSplices);
+                return;
+            }
+            // Otherwise, the change is happening to a sub-path of the array.
+            this._applySubPathChange(change);
+
+        },
+        _applySubPathChange: function (change) {
+            var path = change.path.split('.');
+
+            var key = path[1];
+            path.splice(0, 2);
+
+            if (_.contains(this._unsupportedPath, path[0])) {
+                return this._log('Unspported path for autoupdate', path[0]);
+            }
+
+            var remoteKey = path.join('.');
+            this._log('key', key)
+            this._log('remote key', remoteKey);
+
+            if (remoteKey.indexOf('#') > -1) {
+                return this._log('Unsupported autoupdate with this path. Update manually');
+            }
+
+            var value = Polymer.Collection.get(change.base).getItem(key);
+            this._log('doc changed', value)
+
+            var setModifier = {};
+
+
+            setModifier[remoteKey] = change.value;
+            this._log(setModifier);
+            var res = Mongo.Collection.get(this.query.find().collName).update({
+                _id: value._id
+            }, {
+                    $set: setModifier
+                })
+            this._log('result of update', res);
+        },
+        _log: function () {
+            var args;
+            if (this.log) {
+                args = Array.prototype.slice.call(arguments).map(function (arg) {
+                    if (arg && typeof arg.val === 'function') {
+                        return arg.val();
+                    }
+                    return arg;
+                });
+                console.log.apply(console, args);
+            }
+        }
+    });
+})();
+    </script>
+</dom-module>

@@ -1,0 +1,38 @@
+{
+  "name": "polyteor-element",
+  "authors": [
+    "Jonatan Sombié <jonatan.sombie@gmail.com>"
+  ],
+  "description": "A set of elements integrating meteor and polymer",
+  "keywords": [
+    "web-component",
+    "polymer",
+    "meteor",
+    "polymer-meteor",
+    "polyteor"
+  ],
+  "main": "polyteor-element.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "https://github.com/stomybexy/polyteor-element/",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.2.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "^4.0.0"
+  },
+  "_release": "031606e928",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "031606e9288705f3950df4d3f10372f215157734"
+  },
+  "_source": "git://github.com/stomybexy/polyteor-element.git",
+  "_target": "master",
+  "_originalSource": "stomybexy/polyteor-element",
+  "_direct": true
+}

@@ -1,0 +1,82 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../polyteor-element.html">
+
+
+
+
+
+<dom-module id="demo-element">
+    <template>
+        <p>An example of <code>&lt;polyteor-query&gt;</code>:</p>
+        
+        <polyteor-query query="{{query}}" data="{{todos}}" autoupdate></polyteor-query>
+        <pre>[[onChange(todos.*, todos)]]</pre>
+        <!--<template is="dom-repeat" items="[[todos]]" as="todo">
+            <h4>[[todo.label]]</h4>
+            <span>Done: [[todo.isComplete]]</span>
+        </template>-->
+        
+        
+        <p>An example of <code>&lt;polyteor-object&gt;</code>:</p>
+        
+        <polyteor-object collection="todos" data="{{todo}}" selector='{"label": "test3"}' autoupdate log>
+        </polyteor-object>
+        <pre>[[prettify(todo)]]</pre>
+        
+        
+        <p>An example of <code>&lt;polyteor-subscription&gt;</code>:</p>
+        
+        <polyteor-subscription name="open" data="{{openTodos}}" log autoupdate>
+        </polyteor-subscription>
+        <pre>[[onChange(openTodos.*, openTodos)]]</pre>
+    </template>
+    <script>
+        (function () {
+    'use strict';
+
+    Polymer({
+        is: 'demo-element',
+        properties: {
+            query: {
+                type: Object,
+                value: function () {
+                    return {
+                        find: function () {
+                            return {
+                                selector: {},
+                                collName: 'todos'
+                            }
+                        }
+                    }
+                },
+                notify: true
+            }
+        },
+        prettify: function (object) {
+            console.log(object)
+            if (!object) {
+                return '';
+            }
+            return JSON.stringify(object, null, '  ');
+        },
+
+
+        onChange: function (path, data) {
+            // console.log('todos changed', path);
+            return this.prettify(data);
+        }
+
+    });
+})();
+    </script>
+</dom-module>
