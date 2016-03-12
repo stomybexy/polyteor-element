@@ -1,6 +1,6 @@
 # polyteor-element
 
-An element providing a starting point for your own reusable Polymer elements.
+A set of elements for meteor and polymer integration. Please read [documentation](http://stomybexy.github.io/polyteor-element/)
 
 
 ## Dependencies
