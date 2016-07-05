@@ -1,0 +1,35 @@
+<script>
+    (function() {
+        window.Polyteor = window.Polyteor || {};
+
+        Polyteor.MeteorCallerBehavior = {
+
+            properties: {
+                meteorReady: {
+                    type: Boolean,
+                    value: false,
+                    notify: true,
+                    observer: '_onMeteorReady',
+                    readOnly: true
+                }
+            },
+            ready: function() {
+                this._computeMeteorReady();
+            },
+            _computeMeteorReady: function() {
+                var self = this;
+                if (window.Meteor) {
+                    self._setMeteorReady(true);
+                } else {
+                    setTimeout(function() {
+                        self._computeMeteorReady();
+                    }, 0);
+                }
+            },
+            _onMeteorReady: function() {
+                this.fire("meteor-ready");
+            }
+
+        };
+    })();
+</script>
