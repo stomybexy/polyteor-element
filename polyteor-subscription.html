@@ -125,9 +125,11 @@ Example:
                 created: function() {
                     // this._subDep = new Tracker.Dependency;
                     this.computation;
+                    this.subscription;
                 },
 
                 ready: function() {
+
                     // var self = this;
                     // Tracker.autorun(function(computation) {
                     //     self.computation = computation;
@@ -167,7 +169,7 @@ Example:
                         self._setSubReady(true);
                     }]);
                     self._log('Calling subscribe with', args);
-                    Meteor.subscribe.apply(Meteor, args);
+                    self.subscription = Meteor.subscribe.apply(Meteor, args);
 
                 },
 
@@ -179,6 +181,9 @@ Example:
                     this._log('polyteor-subscription was detached');
                     if (this.computation) {
                         this.computation.stop();
+                    }
+                    if(this.subscription){
+                      this.subscription.stop();
                     }
 
                 },
