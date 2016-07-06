@@ -1,6 +1,6 @@
 {
   "name": "polyteor-element",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "authors": [
     "Jonatan Sombié <jonatan.sombie@gmail.com>"
   ],
@@ -13,7 +13,7 @@
     "polyteor"
   ],
   "main": "polyteor-element.html",
-  "license": "http://polymer.github.io/LICENSE.txt",
+  // "license": "http://polymer.github.io/LICENSE.txt",
   "homepage": "https://github.com/stomybexy/polyteor-element/",
   "ignore": [
     "/.*",

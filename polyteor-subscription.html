@@ -172,6 +172,8 @@ Example:
                         self._log('Subscription is ready');
                         self._setSubReady(true);
                     }]);
+                    self._setSubReady(false);
+
                     self._log('Calling subscribe with', args);
                     self.subscription = Meteor.subscribe.apply(Meteor, args);
 
