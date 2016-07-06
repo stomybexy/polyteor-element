@@ -89,6 +89,11 @@ Example:
                     // if(!ready){
                     //     return;
                     // }
+                    // This is to detect pubs made by SmartPub
+                    // TODO Find a more reliable way
+                    if(!Meteor.connection._methodHandlers[name]){
+                      return;
+                    }
                     var self = this;
                     if (!name) {
                         return;
@@ -131,7 +136,7 @@ Example:
 
                     // var self = this;
                     // Tracker.autorun(function(computation) {
-                    //     self.computation = computation;
+                    //     self.computation = computation;'todos'
                     //     self._log('computation object:', self.computation);
                     //     self._log('Subscription to', self.sub)
                     //     self._runSub();

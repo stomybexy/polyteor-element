@@ -1,5 +1,6 @@
 <link rel="import" href="../../polymer/polymer.html">
 
+
 <link rel="import" href="../polyteor-element.html">
 
 
@@ -10,24 +11,24 @@
     <template>
         <p>An example of <code>&lt;polyteor-query&gt;</code>:</p>
 
-        <polyteor-query query="{{query}}" data="{{todos}}" autoupdate></polyteor-query>
+        <polyteor-query query="{{query}}" data="{{todos}}"  log></polyteor-query>
         <pre>[[onChange(todos.*, todos)]]</pre>
-        <!--<template is="dom-repeat" items="[[todos]]" as="todo">
-            <h4>[[todo.label]]</h4>
-            <span>Done: [[todo.isComplete]]</span>
-        </template>-->
+        <template is="dom-repeat" items="{{todos}}" as="todo">
+            <h3>{{todo.label}}</h3>
+            <div>Done: {{todo.isComplete}}</div>
+        </template>
 
 
         <p>An example of <code>&lt;polyteor-object&gt;</code>:</p>
 
-        <polyteor-object collection="todos" data="{{todo}}" selector='{"label": "test3"}' autoupdate log>
+        <polyteor-object collection="todos" data="{{todo}}" selector='{"label": "test3"}'  log>
         </polyteor-object>
         <pre>[[prettify(todo)]]</pre>
 
 
         <p>An example of <code>&lt;polyteor-subscription&gt;</code>:</p>
 
-        <polyteor-subscription name="open" data="{{openTodos}}" log autoupdate>
+        <polyteor-subscription name="todos" data="{{openTodos}}" log >
         </polyteor-subscription>
         <pre>[[onChange(openTodos.*, openTodos)]]</pre>
     </template>

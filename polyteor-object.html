@@ -1,4 +1,3 @@
-
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="polyteor-collection.html">
 
@@ -18,124 +17,125 @@ Example:
 
 <dom-module id="polyteor-object">
     <template>
-        <polyteor-collection collection="{{collection}}" selector="{{_selector}}" data="{{_data}}" sort="{{sort}}" fields="{{fields}}"
-        limit="{{limit}}" skip="{{skip}}" autoupdate="{{autoupdate}}" log="{{log}}">
+        <polyteor-collection collection="{{collection}}" selector="{{_selector}}" data="{{_data}}" sort="{{sort}}" fields="{{fields}}" limit="{{limit}}" skip="{{skip}}" autoupdate="{{autoupdate}}" log="{{log}}">
         </polyteor-collection>
     </template>
     <script>
-        (function () {
-    'use strict';
+        (function() {
+            'use strict';
 
-    Polymer({
-        is: 'polyteor-object',
-        properties: {
-            data: {
-                type: Object,
-                notify: true,
-                computed: '_computeObject(_data.*)',
-                observer: '_onData'
-            },
-            _data: {
-                type: Array,
-                notify: true
-            },
-            collection: {
-                type: String,
-                reflectToAttribute: true,
-                notify: true,
-                value: null
-            },
-            objectId: {
-                type: Object,
-                notify: true,
-                value: null
-            },
-            selector: {
-                type: Object,
-                notify: true,
-                value: null
-            },
-            _selector: {
-                type: Object,
-                notify: true,
-                computed: "_computeSelector(objectId, selector)"
-            },
-            sort: {
-                type: Object,
-                notify: true,
-                value: null
-            },
-            limit: {
-                type: Number,
-                notify: true,
-                reflectToAttribute: true,
-                value: null
-            },
-            fields: {
-                type: Object,
-                notify: true,
-                value: null
-            },
-            skip: {
-                type: Number,
-                notify: true,
-                value: null,
-                reflectToAttribute: true
-            },
-            /**
-             * If true, verbose debugging information will be printed to the console.
-             */
-            log: {
-                type: Boolean,
-                value: false,
-                reflectToAttribute: true
-            },
-            autoupdate: {
-                type: Boolean,
-                value: false,
-                relfectToAttribute: true
-            }
-        },
-        _computeObject: function (path) {
-
-            if (!this._data) {
-                return null;
-            }
-
-            return this._data[0];
-        },
-        _computeSelector: function (id, selector) {
-            if (id) {
-                return _.extend({ _id: id }, selector);
-            }
-            return _.extend({}, selector);
-        },
-
-        _onData: function(){
-            this._log('Polyteor Object changed:', this.data);
-        },
-
-        attached: function () {
-            this._log('polyteor-collection was attached');
-        },
-
-        detached: function () {
-            this._log('polyteor-collection was detached');
-
-        },
-        _log: function () {
-            var args;
-            if (this.log) {
-                args = Array.prototype.slice.call(arguments).map(function (arg) {
-                    if (arg && typeof arg.val === 'function') {
-                        return arg.val();
+            Polymer({
+                is: 'polyteor-object',
+                properties: {
+                    data: {
+                        type: Object,
+                        notify: true,
+                        computed: '_computeObject(_data.*)',
+                        observer: '_onData'
+                    },
+                    _data: {
+                        type: Array,
+                        notify: true
+                    },
+                    collection: {
+                        type: String,
+                        reflectToAttribute: true,
+                        notify: true,
+                        value: null
+                    },
+                    objectId: {
+                        type: Object,
+                        notify: true,
+                        value: null
+                    },
+                    selector: {
+                        type: Object,
+                        notify: true,
+                        value: null
+                    },
+                    _selector: {
+                        type: Object,
+                        notify: true,
+                        computed: "_computeSelector(objectId, selector)"
+                    },
+                    sort: {
+                        type: Object,
+                        notify: true,
+                        value: null
+                    },
+                    limit: {
+                        type: Number,
+                        notify: true,
+                        reflectToAttribute: true,
+                        value: null
+                    },
+                    fields: {
+                        type: Object,
+                        notify: true,
+                        value: null
+                    },
+                    skip: {
+                        type: Number,
+                        notify: true,
+                        value: null,
+                        reflectToAttribute: true
+                    },
+                    /**
+                     * If true, verbose debugging information will be printed to the console.
+                     */
+                    log: {
+                        type: Boolean,
+                        value: false,
+                        reflectToAttribute: true
+                    },
+                    autoupdate: {
+                        type: Boolean,
+                        value: false,
+                        relfectToAttribute: true
                     }
-                    return arg;
-                });
-                console.log.apply(console, args);
-            }
-        }
-    });
-})();
+                },
+                _computeObject: function(path) {
+
+                    if (!this._data) {
+                        return null;
+                    }
+
+                    return this._data[0];
+                },
+                _computeSelector: function(id, selector) {
+                    if (id) {
+                        return _.extend({
+                            _id: id
+                        }, selector);
+                    }
+                    return _.extend({}, selector);
+                },
+
+                _onData: function() {
+                    this._log('Polyteor Object changed:', this.data);
+                },
+
+                attached: function() {
+                    this._log('polyteor-collection was attached');
+                },
+
+                detached: function() {
+                    this._log('polyteor-collection was detached');
+
+                },
+                _log: function() {
+                    var args;
+                    if (this.log) {
+                        args = Array.prototype.slice.call(arguments).map(function(arg) {
+                            if (arg && typeof arg.val === 'function') {
+                                return arg.val();
+                            }
+                            return arg;
+                        });
+                        console.log.apply(console, args);
+                    }
+                }
+            });
+        })();
     </script>
 </dom-module>
